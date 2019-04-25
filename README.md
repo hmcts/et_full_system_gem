@@ -79,6 +79,28 @@ To setup the environment variables in the current shell to allow you to run a se
 
     Where <service_name> is either et1, et3, admin, api or atos
 
+To setup the local system
+
+    $ et_full_system local setup
+
+To start the server (Must have been setup with the command above - for the first time and after changing gems etc.. in the services)
+
+    $ et_full_system local server
+
+To reset the server - this will drop and recreate the database, empty redis etc..  so VERY destructive
+
+    $ et_full_system local reset
+
+To redirect a service to your own hosted version
+
+If you want to host a service yourself for debugging or other purposes - you must setup the service yourself with all
+the relevant environment variables (see the service_env command), then, to point the full system url's to your hosted service, use the following command
+
+    $ et_full_system local update_service_url <service_name> <service_url>
+
+Where <service_name> is either et1, et3, admin, api or atos
+
+
 ### Upgrading
 
 Note that docker caches stuff for the better and for the worse.  So, the command in the Dockerfile that installs the version
