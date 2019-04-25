@@ -32,15 +32,19 @@ Or install it yourself directly from github as follows:
     $ gem install et_full_system.gem
     $ rm et_full_system.gem
 
-## Usage
+## Usage (using docker)
 
-To setup and start the server with 1 command
+To setup the docker system
+
+    $ et_full_system docker setup
+
+To start the server (Must have been setup with the command above - for the first time and after changing gems etc.. in the services)
 
     $ et_full_system docker server
 
-To reset the server
+To reset the server (Note: no other docker containers should be sharing the network - such as a test container)
 
-    $ et_full_system docker server down -v
+    $ et_full_system docker reset
 
 To setup and start the server in detached mode (i.e showing no logs etc..)
 
@@ -53,6 +57,27 @@ To watch the logs of an existing running server
 To do any other docker compose commands
 
     $ et_full_system docker compose <command> <command args>
+
+To redirect a service to your own hosted version
+
+If you want to host a service yourself for debugging or other purposes - you must setup the service yourself with all
+the relevant environment variables (see the service_env command), then, to point the full system url's to your hosted service, use the following command
+
+    $ et_full_system docker update_service_url <service_name> <service_url>
+
+Where <service_name> is either et1, et3, admin, api or atos
+and <service_url> must be a URL that is reachable from the docker container - you may need to use the special 'host.docker.internal'
+or in general checkout this page https://docs.docker.com/docker-for-mac/networking/ or https://docs.docker.com/docker-for-windows/networking/
+
+
+## Usage (Without docker)
+
+To setup the environment variables in the current shell to allow you to run a service manually for debugging for example
+
+    $ export $(et_full_system local service_env <service_name>)
+
+
+    Where <service_name> is either et1, et3, admin, api or atos
 
 ### Upgrading
 

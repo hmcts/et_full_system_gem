@@ -7,6 +7,7 @@ module EtFullSystem
   require 'azure/storage'
 
   class FileStorageCommand < Thor
+    GEM_PATH = File.absolute_path('../../..', __dir__)
 
     desc "setup", "Primes the storage account(s) for running locally - i.e. using local S3 or Azure Blob storage"
     def setup_storage
@@ -46,8 +47,10 @@ module EtFullSystem
     end
 
     def setup_azure_storage
-      bundler_envs = ENV.keys.select {|k| k.start_with?('BUNDLE')}
-      puts `bash --login -c "cd systems/api && rvm use && env -u #{bundler_envs.join(' -u ')} -- bundle exec bundle exec rails configure_azure_storage_containers configure_azure_storage_cors"`
+      Bundler.with_original_env do
+        puts `bash --login -c "cd systems/api && rvm use && dotenv -f \"#{GEM_PATH}/foreman/.env\" dotenv -f \"#{GEM_PATH}/foreman/et_api.env\"  bundle exec bundle exec rails configure_azure_storage_containers configure_azure_storage_cors"`
+
+      end
     end
   end
 end
