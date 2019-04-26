@@ -4,7 +4,7 @@ module EtFullSystem
   require "rubygems"
   require "thor"
   require 'httparty'
-  require 'et_full_system/cli/file_storage'
+  require 'et_full_system/cli/local/file_storage'
   require 'dotenv'
 
   class LocalCommand < Thor
@@ -23,7 +23,7 @@ module EtFullSystem
       connect_retry_countdown = 10
       begin
         resp = HTTParty.put "#{options[:base_url]}/api/providers/rest", body: File.read(json_setup_file) , headers: {'Content-Type': 'application/json', 'Accept': 'application/json'}
-        raise "Error from traefik when performing initial config says: #{put_resp.body}" unless (200..299).include? resp.code
+        raise "Error from traefik when performing initial config says: #{resp.body}" unless (200..299).include? resp.code
         sleep 1
       rescue Errno::EADDRNOTAVAIL, Errno::ECONNREFUSED
         connect_retry_countdown -= 1
@@ -79,23 +79,28 @@ module EtFullSystem
 
 
     desc "server", "Starts the full system server"
+    method_option :without, type: :array, default: [], banner: "service1 service2", desc: "If specified, disables the specified services from running. The services are et1_web, et1_sidekiq, et3_web, mail_web, api_web, api_sidekiq, admin_web, atos_api_web, s3_web, azure_blob_web, fake_acas_web"
+    method_option :azurite_storage_path, default: '/tmp/azurite_storage', desc: "Where to store azurite data"
+    method_option :minio_storage_path, default: '/tmp/minio_storage', desc: "Where to store minio data"
     def server
       puts "Scheduling traefik config and file storage config"
-      fork do
+      pid = fork do
         self.class.start(['boot'])
-        EtFullSystem::FileStorageCommand.start(['setup'])
+        EtFullSystem::Cli::Local::FileStorageCommand.start(['setup'])
       end
+      Process.detach(pid)
 
       puts "Starting Procfile"
       ::Bundler.with_original_env do
-        cmd = "FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman forego start -f \"#{GEM_PATH}/foreman/Procfile\" -e \"#{GEM_PATH}/foreman/.env\""
+        concurrency = " -c #{procfile_concurrency_without(options[:without]).join(',')}"
+        cmd = "AZURITE_STORAGE_PATH=\"#{options[:azurite_storage_path]}\" MINIO_STORAGE_PATH=\"#{options[:minio_storage_path]}\" FS_ROOT_PATH=#{PROJECT_PATH} FOREMAN_PATH=#{GEM_PATH}/foreman forego start -f \"#{GEM_PATH}/foreman/Procfile\" -e \"#{GEM_PATH}/foreman/.env\"#{concurrency}"
         STDERR.puts cmd
         exec(cmd)
       end
     end
 
     desc "file_storage <commands>", "Tools for the 'local cloud' file storage"
-    subcommand "file_storage", ::EtFullSystem::FileStorageCommand
+    subcommand "file_storage", ::EtFullSystem::Cli::Local::FileStorageCommand
 
     desc "setup", "Sets up everything ready for first run"
     def setup
@@ -139,6 +144,17 @@ module EtFullSystem
     end
 
     private
+
+    def procfile_services
+      File.readlines("#{GEM_PATH}/foreman/Procfile").inject([]) do |acc, line|
+        next if line.strip.start_with?('#')
+        acc + [line.split(':').first]
+      end
+    end
+
+    def procfile_concurrency_without(without)
+      procfile_services.map {|service| "#{service}=#{without.include?(service) ? 0 : 1}"}
+    end
 
     def external_command(cmd, tag)
       IO.popen(cmd) do |io|

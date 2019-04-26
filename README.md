@@ -27,11 +27,33 @@ service is known, traefik is told about it - so it all just works.
 
 There are other services as well that are run - which are there for testing - these are :-
 
-et-fake-acas-server (https://github.com/ministryofjustice/et_fake_acas_server) - Provides a fake ACAS server with predictable responses based on various special certificate numbers
-mailhog (https://github.com/mailhog/MailHog) - Captures all emails sent to allow the test suite or the developer to view them and check them
-minio (https://github.com/minio/minio) - A local amazon S3 server to avoid having S3 credentials for every environment
-azurite (https://github.com/Azure/Azurite) - A local azure blob server to avoid having azure credentials for every environment
+* et-fake-acas-server (https://github.com/ministryofjustice/et_fake_acas_server) - Provides a fake ACAS server with predictable responses based on various special certificate numbers
+* mailhog (https://github.com/mailhog/MailHog) - Captures all emails sent to allow the test suite or the developer to view them and check them
+* minio (https://github.com/minio/minio) - A local amazon S3 server to avoid having S3 credentials for every environment
+* azurite (https://github.com/Azure/Azurite) - A local azure blob server to avoid having azure credentials for every environment
 
+
+## Pre Requisites
+
+### Running With Docker
+
+If you want to use the docker setup, it keeps everything inside a container and therefore doesnt interfere with your
+system configuration at all.  All you need is
+
+* Docker
+* Docker Compose
+
+### Running Without Docker
+
+To run without docker, you need a few tools
+
+* Traefik (https://traefik.io)
+* Mailhog (https://github.com/mailhog/MailHog)
+* Minio (https://github.com/minio/minio)
+* Azurite (https://github.com/Azure/Azurite)
+
+I will not include installation instructions here for them - please visit their web sites and install them on your platform.
+For OSX users check out the homebrew repository - there are formulas for some of these.
 
 ## Installation
 
@@ -136,6 +158,14 @@ To setup the environment variables in the current shell to allow you to run a se
 
     Where <service_name> is either et1, et3, admin, api or atos
 
+If for any reason, there are services that you don't want - you might just want to save resources and are not interested in
+every part of the system, you can use the --without option on the server command as follows
+
+    $ et_full_system local server --without=et3_web fake_acas_web
+
+To see all options - do
+
+    $ et_full_system local server --help
 
 ### Upgrading
 

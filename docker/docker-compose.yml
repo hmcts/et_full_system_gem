@@ -32,7 +32,8 @@ services:
       DISABLE_CLOUDWATCH: 'true'
       DB_HOST: 'db'
       DB_USERNAME: 'postgres'
-
+      RAILS_ENV:
+      RAILS_LOG_LEVEL:
       REDIS_HOST: redis
       SERVER_PORT: ${SERVER_PORT:-3100}
       SERVER_DOMAIN: ${SERVER_DOMAIN:-et.127.0.0.1.nip.io}

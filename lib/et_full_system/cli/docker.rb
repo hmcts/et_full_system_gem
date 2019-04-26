@@ -42,10 +42,10 @@ module EtFullSystem
         gem_root = File.absolute_path('../../..', __dir__)
         cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml down -v"
         puts cmd
-        system(cmd)
+        next unless system(cmd)
         cmd = "docker-compose -f #{gem_root}/docker/docker-compose.yml build --no-cache"
         puts cmd
-        system(cmd)
+        next unless system(cmd)
         self.class.start(['setup'])
       end
     end
