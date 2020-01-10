@@ -19,6 +19,7 @@ module EtFullSystem
             server_args = []
             server_args << "--without=#{options[:without].join(' ')}" unless options[:without].empty?
             env_vars = ["SERVER_ARGS='#{server_args.join(' ')}'"]
+            env_vars << "LOCALHOST_FROM_DOCKER_IP=#{host_ip}"
             if options.ccd_docker?
               env_vars << "CCD_AUTH_BASE_URL=http://#{options.ccd_docker_host}:4502"
               env_vars << "CCD_IDAM_BASE_URL=http://#{options.ccd_docker_host}:5000"
@@ -58,6 +59,13 @@ module EtFullSystem
         end
 
         default_task :up
+
+        private
+
+        def host_ip
+          result = JSON.parse `docker network inspect \`docker network list | grep docker_et_full_system | awk '{print $1}'\``
+          result.first.dig('IPAM', 'Config').first['Gateway']
+        end
       end
     end
   end
