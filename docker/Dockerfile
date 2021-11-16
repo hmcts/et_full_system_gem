@@ -14,6 +14,7 @@ RUN wget https://gitlab.com/pdftk-java/pdftk/-/jobs/1507074845/artifacts/raw/bui
 RUN mv pdftk-all.jar usr/lib/pdftk.jar
 COPY docker/build/pdftk /usr/local/bin/pdftk
 COPY docker/build/run /home/app/run
+
 # Install gems and binstubs to run without bundler
 RUN mkdir -p /home/app/system_gems/et_full_system && chmod 0777 /home/app/system_gems/et_full_system && chown -R app:app /home/app/system_gems
 
