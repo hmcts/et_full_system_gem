@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    et_full_system (7.0.4)
+    et_full_system (7.0.5)
       azure-storage (~> 0.15.0.preview)
       dotenv (~> 2.7, >= 2.7.2)
       et_fake_ccd (~> 1.0)
@@ -33,6 +33,7 @@ GEM
       nokogiri (~> 1.6, >= 1.6.8)
     concurrent-ruby (1.1.10)
     date (3.0.3)
+    digest (3.1.0)
     dotenv (2.8.1)
     et_fake_ccd (1.1.11)
       activemodel (~> 6.1)
@@ -76,10 +77,16 @@ GEM
     net-imap (0.3.4)
       date
       net-protocol
-    net-pop (0.1.0)
+    net-pop (0.1.1)
+      digest
+      net-protocol
+      timeout
     net-protocol (0.2.1)
       timeout
-    net-smtp (0.1.0)
+    net-smtp (0.3.1)
+      digest
+      net-protocol
+      timeout
     nokogiri (1.13.10-x86_64-linux)
       racc (~> 1.4)
     pastel (0.8.0)
@@ -96,7 +103,7 @@ GEM
     rotp (6.2.2)
     thor (1.2.1)
     tilt (2.0.11)
-    timeout (0.1.0)
+    timeout (0.3.0)
     tty-color (0.6.0)
     tty-logger (0.6.0)
       pastel (~> 0.8)
